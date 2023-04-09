@@ -37,6 +37,21 @@ public:
     void buildBarChart(const std::map<QString,int> &data);
     void buildLineChart(const std::map<int,int> &data);
 
+    /**
+     *
+     * @brief общяя функция построения
+     * @param dataset
+     * @todo  make one type data
+     */
+//    template <typename T>
+//    void build( T& dataset)
+//    {
+//        if(m_type == TypeChart::BarChart)
+//            buildBarChart(dataset);
+//        if(m_type == TypeChart::LineChart)
+//            buildLineChart(dataset);
+//    }
+
 protected:
     void setChartView(QChart *chart);
 

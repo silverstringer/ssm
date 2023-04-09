@@ -96,6 +96,7 @@ void static  calculateDCA(dca & res, int min_range = 0, int max_range = 0) {
 
             auto diff_price = res.goal_price - find_down_price;
 
+            //todo: поменять допустимый диапазон [отклонение] расхождение
             if(diff_price == 0 )
             {
                 res.goal_range[min_range] = range_price;

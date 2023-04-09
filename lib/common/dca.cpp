@@ -39,7 +39,7 @@ void DiffPercent::convertPercentage()
     getCoefficient();
 
 
-   if(isBoundRange(0, 99, (int)(m_percent)))
+   if(isBoundRange(0, 99, static_cast<int>(m_percent)))
       m_percent = 1 + m_percent/100;
    if(m_percent == 100)
       m_percent = 2;

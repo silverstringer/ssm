@@ -9,7 +9,7 @@
 #include "grid.h"
 #include "chart.h"
 #include "csvreader.h"
-#include  "csvModel.h"
+#include  "csvmodel.h"
 
 #include <QMainWindow>
 #include <QDebug>

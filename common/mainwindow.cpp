@@ -374,7 +374,6 @@ void MainWindow::getDiffPercentDetails() {
 
 
     //Save csv to file
-
     connect(btnSaveCSV, &QPushButton::clicked, [=]() {
 
         std::unique_ptr<Common::Logger::CSVLogger> logger(new Common::Logger::CSVLogger);
@@ -393,7 +392,7 @@ void MainWindow::getDiffPercentDetails() {
     //Save csv to file
     connect(btnGetGraph, &QPushButton::clicked, [=]() {
 
-        auto grid = Grid<std::string>(5, data.size());
+        auto grid = Common::Grid<std::string>(5, data.size());
         std::vector<std::string> container{};
         for (size_t rows = 0; rows < data.size(); rows++)
             for (std::size_t items = 0; items < data.at(rows).size(); items++)
@@ -410,13 +409,12 @@ void MainWindow::getDiffPercentDetails() {
           data_convert1.emplace(stoi(range_assets), stoi(range_price));
       }
 
-      Graph * graph = new Graph();
-      graph->setType(Graph::TypeChart::BarChart);
+      std::unique_ptr<Graph>  graph = std::make_unique<Graph>();
+      graph->setType(Graph::TypeChart::LineChart);
       graph->setTitleGraph("Diff Percentage", "Month", "Depo");
 
 //      graph->buildBarChart(data_convert);
      graph->buildLineChart(data_convert1);
-
 
      //View csv data from file
      char delim = ';';

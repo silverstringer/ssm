@@ -2,9 +2,13 @@
 
 #include <QApplication>
 
+Common::Logger::ConsoleLogger * Common::Logger::ConsoleLogger::p_instanse = 0;
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+
 
     MainWindow app;
     app.show();
@@ -12,7 +16,6 @@ int main(int argc, char *argv[])
     timer<ch::microseconds> timer;
 
     Strategy::dca res_test(10, 100, 90);
-
     std::vector<std::pair<int,int>> ranges = Strategy::make_sub_range(MAX_ASSETS);
 
     ThreadPool pool(4);
@@ -46,6 +49,7 @@ int main(int argc, char *argv[])
 //    };
 
     //calculate esma
+
 
     return a.exec();
 }

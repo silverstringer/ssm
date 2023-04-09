@@ -57,19 +57,21 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common/)
 #file( GLOB_RECURSE API_FILES Model/*.h)
 
 SET( SOURCE_FILES
+        Model/acsmodel.cpp
         common/mainwindow.cpp
         common/avgcoststocks.cpp
-        Model/acsmodel.cpp
         common/chart.cpp
+        common/csvmodel.cpp
         main.cpp)
 SET( HEADER_FILES
+        Model/acsmodel.h
         common/mainwindow.h
         common/avgcoststocks.h
-        Model/acsmodel.h
         common/chart.h
         common/threadpool.h
         common/timer.h
-        common/csvreader.h common/csvModel.h common/csvModel.cpp)
+        common/csvreader.h
+        common/csvmodel.h )
 
 #file(GLOB CLIENT_FILE *.cpp *.h)
 

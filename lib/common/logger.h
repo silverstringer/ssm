@@ -54,6 +54,60 @@ namespace Common::Logger {
 typedef  std::vector<std::string> FieldType ;
 typedef  std::vector<QString> FieldQType ;
 
+    enum LogLevel
+    {
+        Trace,
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Fatal
+    };
+
+    std::string  static levelToString(Logger::LogLevel logLevel)
+    {
+        switch (logLevel)
+        {
+            case Trace:
+                return "Trace";
+            case Debug:
+                return "Debug";
+            case Info:
+                return "Info";
+            case Warning:
+                return "Warning";
+            case Error:
+                return "Error";
+            case Fatal:
+                return "Fatal";
+        }
+
+        return std::string{};
+    }
+
+    static Logger::LogLevel levelFromString(const std::string& str)
+    {
+
+        LogLevel result = Debug;
+
+        if (str == std::string("trace"))
+            result = Trace;
+        else if (str == std::string("debug"))
+            result = Debug;
+        else if (str == std::string("info"))
+            result = Info;
+        else if (str == std::string("warning"))
+            result = Warning;
+        else if (str == std::string("error"))
+            result = Error;
+        else if (str == std::string("fatal"))
+            result = Fatal;
+
+        return result;
+    }
+
+class ConsoleLogger;
+
 /**
  * @brief The Logger class
  * @note usage default type string, QString, const char * ...
@@ -78,6 +132,8 @@ public:
         return {data...};
     }
 
+
+
     template <typename... Types>
     auto prepareData(std::vector<std::string> data)->decltype(FieldType()) {
         return data;
@@ -93,6 +149,14 @@ public:
     //        return {data.toStdString()};
     //    }
 
+    template<typename... Types>
+    void show(Types... data) {
+        auto message =  Logger::prepareData(data...);
+        for(const auto &var:message)
+            std::cout<<"\t" <<var;
+        std::cout<<"\n";
+    }
+
     std::string virtual  inline  getName() { return "Base Logger";}
 };
 
@@ -105,8 +169,22 @@ public:
 
 class ConsoleLogger : public Logger {
 public:
-    std::string inline   getName() { return "ConsoleLogger";   }
 
+    static ConsoleLogger * p_instanse;
+
+    static ConsoleLogger* LoggerInstance() {
+     if(p_instanse)
+         p_instanse = new ConsoleLogger();
+        return p_instanse;
+    }
+
+    template<typename... Types>
+    void write(LogLevel logLevel, const char* file, int line, const char* function, Types... data){
+        auto logLevelString = levelToString(logLevel);
+        ConsoleLogger::LoggerInstance()->show(logLevelString, file, std::to_string(line) , function,  data...);
+    }
+
+    std::string inline   getName() { return "ConsoleLogger";   }
 };
 
 class CSVLogger final : public Logger
@@ -246,5 +324,17 @@ void CSVLogger::addData(const T &data)
 }
 
 }
+
+using  ConsoleLogger = Common::Logger::ConsoleLogger;
+using  Loglevel = Common::Logger::LogLevel;
+#define cuteLogger LoggerInstance()
+
+#define LOG_TRACE(args...)       ConsoleLogger::LoggerInstance()->write(Loglevel::Trace,    __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_DEBUG (args...)      ConsoleLogger::LoggerInstance()->write(Loglevel::Debug,    __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_INFO(args...)        ConsoleLogger::LoggerInstance()->write(Loglevel::Info,    __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_WARNING(args...)     ConsoleLogger::LoggerInstance()->write(Loglevel::Warning,    __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_ERROR(args...)       ConsoleLogger::LoggerInstance()->write(Loglevel::Error,    __FILE__, __LINE__, __FUNCTION__, args);
+
+
 
 #endif // LOGGER_H

@@ -1,4 +1,4 @@
-#include "csvModel.h"
+#include "csvmodel.h"
 #include "csvreader.h"
 
 
@@ -47,7 +47,7 @@ void CsvModel::build(const std::string filename, char delimeter) {
 
 
     auto data = reader_csv.getData();
-    auto grid_data = Grid<std::string>(column, rows);
+    auto grid_data = Common::Grid<std::string>(column, rows);
     grid_data.setDataGrid(data);
 
     QList<QStandardItem *> rowData;
