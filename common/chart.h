@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <QtCharts/QChartView>
 #include <QtCharts/QBarSeries>
+#include <QtCharts/QStackedBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QLegend>
 #include <QtCharts/QBarCategoryAxis>
@@ -13,6 +14,7 @@
 
 #include <map>
 #include <utility>
+#include <type_traits>
 
 class Graph {
 public:
@@ -35,6 +37,7 @@ public:
     }
 
     void buildBarChart(const std::map<QString,int> &data);
+    void buildBarChartDiffDepo(const std::map<QString,int> &data);
     void buildLineChart(const std::map<int,int> &data);
 
     /**
@@ -51,6 +54,25 @@ public:
 //        if(m_type == TypeChart::LineChart)
 //            buildLineChart(dataset);
 //    }
+
+
+//    template <typename T>
+//    void build( T& dataset)
+//    {
+//        if(m_type == TypeChart::BarChart)
+//            buildBarChart(dataset);
+//        if(m_type == TypeChart::LineChart)
+//            buildLineChart(dataset);
+//    }
+
+//    template<>
+//    void build<std::map<QString,int>>(std::map<QString,int>& dataset)
+//    {
+//        if(m_type == TypeChart::BarChart)
+//            buildBarChart(dataset);
+//    }
+
+
 
 protected:
     void setChartView(QChart *chart);

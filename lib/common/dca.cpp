@@ -16,11 +16,12 @@ void dca::clear()
     goal_range.clear();
 }
 
-DiffPercent::DiffPercent(double depo, double percent, double counterMonth)
+DiffPercent::DiffPercent(double depo, double percent, double counterMonth, double refill)
 {
     deposit = depo;
     m_percent = percent;
     step = counterMonth;
+    m_refill = refill;
 }
 
 void DiffPercent::convertPercentage()
@@ -56,5 +57,6 @@ void DiffPercent::clear()
     m_percent = 0;
     step = 0;
 }
+
 }
 

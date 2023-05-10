@@ -15,9 +15,6 @@ void CsvModel::build(const std::string filename, char delimeter) {
 
     auto column = reader_csv.getSizeGrid().first;
     auto rows = reader_csv.getSizeGrid().second;
-    std::cout << "Counter column: " << column << "\n";
-    std::cout << "Counter rows: " << rows << "\n";
-
 
     QDialog *dlg = new QDialog();
     dlg->setWindowTitle(QString::fromStdString(m_titleWindow));

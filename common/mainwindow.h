@@ -53,4 +53,14 @@ private:
 
 };
 
+ template<typename T1, typename T2>
+ std::map<T2,T1> invert(const std::map<T1,T2> data)
+ {
+  std::map<T2,T1> invert_map;
+  for(const auto &item:data)
+      invert_map[item.second] = item.first;
+  return invert_map;
+ }
+
+
 #endif // MAINWINDOW_H

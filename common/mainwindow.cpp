@@ -29,15 +29,16 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->btnDiffPercent, &QPushButton::clicked, [this]() {
+
+        resultDiffPercent.clear();
         double depo = ui->spnDepoDiffPerc->value();
         double percentage = ui->spnDiffPercentInMonth->value();
-        resultDiffPercent.clear();
-        for(auto counter_month = 1; counter_month <= ui->spnDiffPercentDuration->value(); counter_month++) {
-            Strategy::DiffPercent diff(depo, percentage, counter_month);
-            auto overdeposit = Strategy::calculateDiffPercent(diff);
-            resultDiffPercent.emplace(counter_month, overdeposit);
-            ui->lblResultDiffPercent->setText(QString::number(overdeposit, 'f', 2));
-        }
+        int period = ui->spnDiffPercentDuration->value();
+
+        resultDiffPercent = Strategy::calculateDiffPercentPeriod(depo, percentage, period);
+//        resultDiffPercent = Strategy::calculateDiffPercentPeriodAddStock(depo,50,percentage,period);
+
+        ui->lblResultDiffPercent->setText(QString::number(std::prev(resultDiffPercent.end())->second, 'f', 2));
 
         getDiffPercentDetails();
     });
@@ -126,7 +127,7 @@ void MainWindow::detailDCA() {
         rowData << new QStandardItem(QString("%1").arg(item.first));
         rowData << new QStandardItem(QString("%1").arg(item.second));
         rowData << new QStandardItem(QString("%1").arg(item.second * item.first));
-        rowData << new QStandardItem(QString("%1").arg(-100 + (item.second * 100 / result.price)));
+        rowData << new QStandardItem(QString("%1").arg((item.second * 100 / result.price) - 100));
         model->appendRow(rowData);
     }
 
@@ -384,9 +385,9 @@ void MainWindow::getDiffPercentDetails() {
         auto filename_with_date = current_data.toStdString() + "_" + current_filename;
         logger->settings(dump_dir, filename_with_date);
 //        logger->Log(std::string ("Month"),std::string("Depo"), std::string("Profit") ,std::string("Percent"), std::string("Percent on Depo"));
-        logger->Log("Month","Depo","Profit" ,"Percent","Percent on Depo");
+        logger->add("Month","Depo","Profit" ,"Percent","Percent on Depo");
         for(auto items:data)
-        logger->Log(items);
+        logger->add(items);
     });
 
     //Save csv to file
@@ -399,8 +400,37 @@ void MainWindow::getDiffPercentDetails() {
                 container.push_back(data.at(rows).at(items));
 
        grid.setDataGrid(container);
+//        for(const auto &[range_assets, range_price] :grid.byColumns(0,1))
+//        {
+//            qDebug() << "X: " <<QString::fromStdString(range_assets) <<"\t Y: " <<stoi(range_price);
+//
+//        }
 
-      auto need_data = grid.byColumns(0,1);
+       std::map<std::string, std::string> need_data1 = grid.byColumns(0,1);
+//       std::map<std::string, std::string, std::greater<std::string>> need_data {need_data1};
+
+//       std::map<std::string, std::string, std::greater<std::string>> need_data {need_data1};
+         auto need_data2 = invert(need_data1);
+//         qDebug() <<"Invert data";
+//        for(const auto &[range_assets, range_price] :need_data2)
+//        {
+//            qDebug() << "X: " <<QString::fromStdString(range_assets) <<"\t Y: " <<stoi(range_price);
+//
+//        }
+
+        auto need_data = invert(need_data2);
+//        qDebug() <<"Invert data 2:";
+//        for(const auto &[range_assets, range_price] : need_data)
+//        {
+//            qDebug() << "X: " <<QString::fromStdString(range_assets) <<"\t Y: " <<stoi(range_price);
+//
+//        }
+//      std::sort(need_data.begin(), need_data.end(),[](std::string &a,std::string&b)
+//      {
+//            return a.data()>b.data();
+//      }
+//      );
+
       std::map<QString,int> data_convert;
       std::map<int,int> data_convert1;
       for(const auto &[range_assets, range_price] : need_data)
@@ -410,11 +440,12 @@ void MainWindow::getDiffPercentDetails() {
       }
 
       std::unique_ptr<Graph>  graph = std::make_unique<Graph>();
-      graph->setType(Graph::TypeChart::LineChart);
+      graph->setType(Graph::TypeChart::BarChart);
       graph->setTitleGraph("Diff Percentage", "Month", "Depo");
 
-//      graph->buildBarChart(data_convert);
-     graph->buildLineChart(data_convert1);
+      graph->buildBarChart(data_convert);
+//      graph->buildBarChartDiffDepo(data_convert);
+//     graph->buildLineChart(data_convert1);
 
      //View csv data from file
      char delim = ';';
