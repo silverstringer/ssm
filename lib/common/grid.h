@@ -60,6 +60,7 @@ namespace Common {
             return data_column;
         }
 
+        //todo: usage multimap
         auto byColumns(const int col1, const int col2) {
             std::map<Cell, Cell> data_columns;
             for (size_t rows = 0; rows < getSizeGrid().second; rows++)
