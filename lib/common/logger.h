@@ -19,9 +19,10 @@
 #define DEFAULT_DIR "/.ssm"
 
 template< typename VALUE, typename SFINAE = void >
-struct StrongTypedefValidator;
+struct StrongTypedefValidator {};
 
-template<>
+
+template<> [[maybe_unused]]
 struct StrongTypedefValidator< std::string, std::enable_if< true >::type > final
 {
     bool operator ()( const std::string & value ) const noexcept
@@ -30,7 +31,8 @@ struct StrongTypedefValidator< std::string, std::enable_if< true >::type > final
     }
 };
 
-template<>
+
+template<> [[maybe_unused]]
 struct StrongTypedefValidator< QString, std::enable_if< true >::type > final
 {
     bool operator ()( const QString & value ) const noexcept
@@ -62,6 +64,13 @@ typedef  std::vector<QString> FieldQType ;
         Warning,
         Error,
         Fatal
+    };
+
+    enum Type {
+        None,
+        Console,
+        File,
+        CSV
     };
 
     std::string  static levelToString(Logger::LogLevel logLevel)
@@ -111,11 +120,11 @@ class ConsoleLogger;
 /**
  * @brief The Logger class
  * @note usage default type string, QString, const char * ...
+ * @todo refact base class or funct with param pack move to library?
  */
 class Logger {
 public:
     virtual ~Logger() = default;
-
 
     /**
      *@brief get first element from pack params
@@ -131,8 +140,6 @@ public:
 
         return {data...};
     }
-
-
 
     template <typename... Types>
     auto prepareData(std::vector<std::string> data)->decltype(FieldType()) {
@@ -152,27 +159,35 @@ public:
     template<typename... Types>
     void show(Types... data) {
         auto message =  Logger::prepareData(data...);
+        std::cout<<getDateTime() <<"\t";
+        std::cout<<"[";
         for(const auto &var:message)
             std::cout<<"\t" <<var;
+        std::cout<<"]";
         std::cout<<"\n";
     }
 
-    std::string virtual  inline  getName() { return "Base Logger";}
+    std::string virtual    getName() { return "Base Logger";}
+    Type virtual  getType() { return Type::None;}
+
 };
 
 
-class FileLogger : public Logger {
+class FileLogger final: public Logger {
 public:
+    FileLogger() = default;
+    template <typename... T>
+    [[maybe_unused]] void add(T... data)  { }
     std::string inline  getName() { return "FileLogger"; }
-
+    Type inline getType() override{ return Type::File;}
 };
 
-class ConsoleLogger : public Logger {
+class ConsoleLogger final: public Logger {
 public:
 
     static ConsoleLogger * p_instanse;
 
-    static ConsoleLogger* LoggerInstance() {
+    static ConsoleLogger * LoggerInstance() {
      if(p_instanse)
          p_instanse = new ConsoleLogger();
         return p_instanse;
@@ -185,6 +200,8 @@ public:
     }
 
     std::string inline   getName() { return "ConsoleLogger";   }
+    Type inline getType() override{ return Type::Console;}
+
 };
 
 class CSVLogger final : public Logger
@@ -253,7 +270,7 @@ public:
     }
 
     template <typename... T>
-    void Log(T... data) {
+    void add(T... data) {
         FieldType param = Logger::prepareData(data...);
         addData(param);
     }
@@ -261,13 +278,15 @@ public:
     template<typename... T>
     void operator()(T... data)
     {
-        Log(data...);
+        add(data...);
     }
 
     string inline getNameLogger ()
     {
         return "CSVLogger";
     }
+
+    Type inline getType() override { return Type::CSV;}
 };
 
 
@@ -327,13 +346,13 @@ void CSVLogger::addData(const T &data)
 
 using  ConsoleLogger = Common::Logger::ConsoleLogger;
 using  Loglevel = Common::Logger::LogLevel;
-#define cuteLogger LoggerInstance()
+#define cuteLogger ConsoleLogger::LoggerInstance()
 
-#define LOG_TRACE(args...)       ConsoleLogger::LoggerInstance()->write(Loglevel::Trace,    __FILE__, __LINE__, __FUNCTION__, args);
-#define LOG_DEBUG (args...)      ConsoleLogger::LoggerInstance()->write(Loglevel::Debug,    __FILE__, __LINE__, __FUNCTION__, args);
-#define LOG_INFO(args...)        ConsoleLogger::LoggerInstance()->write(Loglevel::Info,    __FILE__, __LINE__, __FUNCTION__, args);
-#define LOG_WARNING(args...)     ConsoleLogger::LoggerInstance()->write(Loglevel::Warning,    __FILE__, __LINE__, __FUNCTION__, args);
-#define LOG_ERROR(args...)       ConsoleLogger::LoggerInstance()->write(Loglevel::Error,    __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_TRACE(args...)       cuteLogger->write(Loglevel::Trace,     __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_DEBUG (args...)      cuteLogger->write(Loglevel::Debug,     __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_INFO(args...)        cuteLogger->write(Loglevel::Info,      __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_WARNING(args...)     cuteLogger->write(Loglevel::Warning,   __FILE__, __LINE__, __FUNCTION__, args);
+#define LOG_ERROR(args...)       cuteLogger->write(Loglevel::Error,     __FILE__, __LINE__, __FUNCTION__, args);
 
 
 

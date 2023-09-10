@@ -119,12 +119,12 @@ static std::vector<std::vector<std::string>> read_csv(std::string filename) {
 }
 
 //static std::vector <std::map<string, string>> read_csv_map(string filename) {
-//    std::vector<std::map<string, string>> result;
+//    std::vector<std::map<string, string>> resultDCA;
 //
 //    auto csv = read_csv(filename);
 //
 //    if (csv.size() < 2)
-//        return result;
+//        return resultDCA;
 //
 //    auto names = csv[0];
 //    for (int i = 1; i < csv.size(); i++) {
@@ -137,10 +137,10 @@ static std::vector<std::vector<std::string>> read_csv(std::string filename) {
 //                     " file " + filename);
 //            line[names[j]] = csv[i][j];
 //        }
-//        result.push_back(line);
+//        resultDCA.push_back(line);
 //    }
 //
-//    return result;
+//    return resultDCA;
 //};
 
 

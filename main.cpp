@@ -2,12 +2,13 @@
 
 #include <QApplication>
 
+#include "future.h"
+
 Common::Logger::ConsoleLogger * Common::Logger::ConsoleLogger::p_instanse = 0;
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
 
 
     MainWindow app;
@@ -39,16 +40,15 @@ int main(int argc, char *argv[])
 
 //    qDebug() <<"Size ranges: " <<res_test.goal_range.size();
 
+    auto strategy = Market::Strategy::Type::Scalping;
+    auto algo = Market::TraderAlgorithmFactory::createAlgo(strategy);
+    algo->init();
 
+    algo = Market::TraderAlgorithmFactory::createAlgo(Market::Strategy::Type::DayTrade);
+    algo->init();
 
-//    calculate SMA usage history data [json,  etc.] and period {example 20, 50, 100 }
-//    std::vector<double> price_closing { 3.00, 5.10, 2.45, 1.33, 2.23, 3.22 };
-//    int period = 5;//not usage
-//    auto sma = [](const int period, std::vector<int> price_closing) {
-//    return std::accumulate(price_closing.begin(), price_closing.end(), 0) / price_closing.size();
-//    };
-
-    //calculate esma
+    auto algo_3 = algo->clone();
+    algo_3->init();
 
 
     return a.exec();

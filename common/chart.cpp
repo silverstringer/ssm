@@ -1,6 +1,12 @@
 #include "chart.h"
 QT_CHARTS_USE_NAMESPACE
 
+
+Graph::Graph() {
+
+    m_datetimeFormat = "yyyy-MM-dd HH:mm:ss";
+}
+
 void Graph::setChartView(QChart *chart)
 {
     QChartView *chartView = new QChartView(chart);
@@ -8,7 +14,7 @@ void Graph::setChartView(QChart *chart)
     chartView->setRubberBand(QChartView::HorizontalRubberBand); //for zoom graph
 
     QDialog *dialog = new QDialog();
-    dialog->setWindowTitle(title);
+    dialog->setWindowTitle(m_title);
     QVBoxLayout *mainlayout = new QVBoxLayout();
     mainlayout->addWidget(chartView);
 
@@ -33,30 +39,71 @@ void Graph::buildBarChart(const std::map<QString,int> &data) {
 
     QChart *chart = new QChart();
     chart->addSeries(series);
-    chart->setTitle(title);
+    chart->setTitle(m_title);
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
     QStringList categories;
-    categories << titleAxisX;
+    categories << m_titleAxisX;
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
     axisX->append(categories);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
     QValueAxis *axisY = new QValueAxis();
-    auto max = std::max_element(data.begin(), data.end(),
-                                [](const std::pair<QString, int> &p1, const std::pair<QString, int> &p2) {
-                                    return p1.second < p2.second;
-                                });
-    auto min = std::min_element(data.begin(), data.end(),
-                                [](const std::pair<QString, int> &p1, const std::pair<QString, int> &p2) {
-                                    return p1.second < p2.second;
-                                });
+    auto param = min_max_range_element(data);
+    axisY->setRange(0, param.first + param.second);
 
-    axisY->setRange(0, max->second + min->second);
-    axisY->setTickCount(10);
+    axisY->setTickCount(data.size() * 1.5);
 
-    axisY->setTitleText(titleAxisY);
+    axisY->setTitleText(m_titleAxisY);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    setChartView(chart);
+
+}
+
+
+void Graph::buildBarChartDiffDepo(const std::map<QString,int> &data)
+{
+
+    QBarSet *set[data.size()];
+    auto depo = data.begin()->second;
+    QStackedBarSeries *series = new QStackedBarSeries();
+    int i = 0;
+    for (auto&& [key, value] : data) {
+        set[i] = new QBarSet(key);
+        *set[i] <<depo<<value;
+//        *set[i] <<0<<3<<4<<8<<45<<90<<123<<450 <<600<<900<<0<<0;
+//        *set[i] <<m_depo<<value<<0<<0<<0<<0<<0<<0<<0<<0<<0<<0;
+        series->append(set[i]);
+        i++;
+    }
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle(m_title);
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    QStringList categories;
+    for (auto&& [key, value] : data) {
+        categories << key;
+    }
+
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->append(categories);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis();
+    auto param = min_max_range_element(data);
+
+//    axisY->setRange(0, max->second + min->second);
+//    axisY->setTickCount(data.size() * 1.5);
+
+    axisY->setTitleText(m_titleAxisY);
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
@@ -77,7 +124,7 @@ void Graph::buildLineChart(const std::map<int,int> &data) {
     chart->legend()->hide();
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->setTitle(titleAxisY);
+    chart->setTitle(m_titleAxisY);
 //    QValueAxis *axisY = new QValueAxis();
 //
 //    axisY->setTickCount(10);
@@ -89,5 +136,65 @@ void Graph::buildLineChart(const std::map<int,int> &data) {
 //    series->attachAxis(axisY);
 
 
+    setChartView(chart);
+}
+
+void Graph::buildDateTimeAxes(const std::map<QString,int> &data) {
+
+    QLineSeries *series = new QLineSeries();
+
+    for (auto items : data) {
+        QDateTime momentInTime = QDateTime::fromString(items.first, m_datetimeFormat);
+        series->append(momentInTime.toMSecsSinceEpoch(), items.second);
+    }
+
+    QChart *chart = new QChart();
+    chart->legend()->hide();
+    chart->addSeries(series);
+    chart->setTitle(m_titleAxisY);
+
+
+    QDateTimeAxis * axisX = new QDateTimeAxis;
+    axisX->setTickCount(10);
+//    axisX->setTickCount(data.size()/4);
+    axisX->setFormat(m_datetimeFormat);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+
+    auto param = min_max_range_element(data);
+
+    QValueAxis * axisY = new QValueAxis;
+    axisY->setLabelFormat(" %i");
+    axisY->setRange(0, param.first + param.second);
+    axisY->setTickCount(10);
+
+    axisY->setTitleText(m_titleAxisY);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    setChartView(chart);
+}
+
+void Graph::buildPieChart(const std::map<QString,int> &data) {
+
+    QPieSeries * series = new QPieSeries();
+    for(auto &items: data)
+        series->append(items.first, items.second);
+
+    series->setLabelsVisible(true);
+    series->setLabelsPosition(QPieSlice::LabelInsideHorizontal);
+
+    QPieSlice * slice = series->slices().at(1);
+    for( auto slice : series->slices())
+        slice->setLabel(QString("%1% %2").arg(100  * slice->percentage(),  0, 'f', 1).arg(slice->label()));
+    slice->setExploded();
+    slice->setLabelVisible();
+    slice->setPen(QPen(Qt::darkGreen,2));
+    slice->setBrush(Qt::green);
+
+    QChart *chart = new QChart();
+//    chart->legend()->hide();
+    chart->addSeries(series);
     setChartView(chart);
 }
