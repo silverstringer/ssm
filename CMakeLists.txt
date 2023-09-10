@@ -62,6 +62,7 @@ SET( SOURCE_FILES
         common/avgcoststocks.cpp
         common/chart.cpp
         common/csvmodel.cpp
+        common/tradelog.cpp
         main.cpp)
 SET( HEADER_FILES
         Model/acsmodel.h
@@ -71,7 +72,8 @@ SET( HEADER_FILES
         common/threadpool.h
         common/timer.h
         common/csvreader.h
-        common/csvmodel.h )
+        common/csvmodel.h
+        common/tradelog.h)
 
 #file(GLOB CLIENT_FILE *.cpp *.h)
 

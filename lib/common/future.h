@@ -11,6 +11,15 @@
 #include <memory>
 
 
+ //Algo Trading
+  /**
+   1)Market Research
+   2)Backtesting
+   3)Work with data [library  for working  with  data visualization and plotting, analyse data, etc. ]
+   4)Live Trading
+    *Note. Usage Machine learnings for models
+  **/
+
  namespace Market {
      template<typename R, typename ...Ts>
      auto match(const R &range, Ts ...ts) {
@@ -110,14 +119,14 @@
      };
 
 //common interface for all
-     class IStartegy {
+     class IStrategy {
          virtual void run() = 0;
      };
 
-     class Strategy final : public IStartegy {
+     class Strategy final : public IStrategy {
      public:
          enum Type {
-             Scalping, // 0.5% - 1% with big volume
+             Scalping, // 0.5% - 1% with big volume, a) impulse b) order book c) hybrid
              DayTrade, //IntraDay
              BigVolume,
              Grid, //trader by grid price assets
@@ -190,15 +199,19 @@
      };
 
 
-// here must have wallet?
+    // here must have wallet?
      class BalanceInfo {
      public:
          BalanceInfo() = default;
 
      private:
          double currency_balance;
-         std::string asset; //ticker?;
+         std::string asset; //currency
      };
+
+      class Balance {
+
+      };
 
 
      class Transaction {
@@ -219,8 +232,8 @@
          };
      public:
          std::vector<BalanceInfo> m_wallet;
-         long commonDeposit; //basesum in baseSymbol;
-         Symbol baseSymbol; // for convert
+         long amount; //basesum in baseSymbol;
+         Symbol baseSymbol; // for convert for any asset
      };
 
 
@@ -233,27 +246,58 @@
          double low;
      };
 
+
+     /*
+     * @brief
+     * @note description our assets
+     * лучше использовать  понятие актив [ валюта, акции, облигации]
+     */
+     class Currency {
+     public:
+         enum Status{
+             OK = 1,
+             Maintance,
+         };
+
+         struct Config {
+          std::string name;
+          std::string description;
+          std::string ticker;
+          std::string StatusMessage;
+         };
+
+         Currency() = default;
+
+     };
+
+
      class Market {
          enum Status {
              Open = 1,
              Closed,
              Paused
          };
+
+//         using MarketId = Id;
          struct Config {
-             double bid{0.};
-             double ask{0.};
-             double volume{0.};
-             double open{0.};
-             double close{0.};
-             double lastPrice{0.};
-             double baseVolume{0.};
-             double spread{0.};
-             double priceTickSize{0.};
+             double bid {0.};
+             double ask {0.};
+             double volume {0.};
+             double open {0.};
+             double close {0.};
+             double lastPrice {0.};
+             double baseVolume {0.};
+             double spread {0.};
+             double priceTickSize {0.};
+             Status marketStatus {Open};
          };
      public:
          Market() = default;
+         Market(IStrategy * strategy): m_strategy(strategy){ }
      private:
          Status marketStatus;
+         IStrategy  * m_strategy;
+
      };
 
      struct Tax {
@@ -514,10 +558,6 @@
     public:
         AnalyzeSearch() = default;
     };
-
 }
-
-
-
 
 #endif //SSM_FUTURE_H

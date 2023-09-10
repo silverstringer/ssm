@@ -77,7 +77,7 @@ void Graph::buildBarChartDiffDepo(const std::map<QString,int> &data)
         set[i] = new QBarSet(key);
         *set[i] <<depo<<value;
 //        *set[i] <<0<<3<<4<<8<<45<<90<<123<<450 <<600<<900<<0<<0;
-//        *set[i] <<depo<<value<<0<<0<<0<<0<<0<<0<<0<<0<<0<<0;
+//        *set[i] <<m_depo<<value<<0<<0<<0<<0<<0<<0<<0<<0<<0<<0;
         series->append(set[i]);
         i++;
     }
@@ -176,3 +176,25 @@ void Graph::buildDateTimeAxes(const std::map<QString,int> &data) {
     setChartView(chart);
 }
 
+void Graph::buildPieChart(const std::map<QString,int> &data) {
+
+    QPieSeries * series = new QPieSeries();
+    for(auto &items: data)
+        series->append(items.first, items.second);
+
+    series->setLabelsVisible(true);
+    series->setLabelsPosition(QPieSlice::LabelInsideHorizontal);
+
+    QPieSlice * slice = series->slices().at(1);
+    for( auto slice : series->slices())
+        slice->setLabel(QString("%1% %2").arg(100  * slice->percentage(),  0, 'f', 1).arg(slice->label()));
+    slice->setExploded();
+    slice->setLabelVisible();
+    slice->setPen(QPen(Qt::darkGreen,2));
+    slice->setBrush(Qt::green);
+
+    QChart *chart = new QChart();
+//    chart->legend()->hide();
+    chart->addSeries(series);
+    setChartView(chart);
+}

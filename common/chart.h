@@ -9,6 +9,7 @@
 #include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QPieSeries>
 #include <QtCharts>
 #include <QVBoxLayout>
 
@@ -38,6 +39,7 @@ public:
         BarChart,
         LineChart,
         DateTimeAxesChart,
+        PieChart,
     };
 
     Graph();
@@ -57,6 +59,7 @@ public:
     void buildBarChartDiffDepo(const std::map<QString,int> &data);
     void buildLineChart(const std::map<int,int> &data);
     void buildDateTimeAxes(const std::map<QString, int> &data); //  build graph by timelineseries
+    void buildPieChart(const std::map<QString,int> &data);
 
     /**
      *

@@ -60,11 +60,11 @@ QVariant ACSModel::headerData(int section, Qt::Orientation orientation, int role
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         switch (section) {
         case 0:
-            return QString("Assets");
+            return QString("Amount");
         case 1:
             return QString("Price");
         case 2:
-            return QString("TotalAmount");
+            return QString("Total");
         }
     }
 

@@ -12,7 +12,7 @@
 
 
 /**
- * @brief  average result of buy assets
+ * @brief  average resultDCA of buy assets
  */
 class AvgCostStocks : public QWidget
 {

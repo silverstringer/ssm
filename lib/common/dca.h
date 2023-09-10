@@ -80,7 +80,7 @@ namespace Strategy {
     double static calculateDiffPercent(DiffPercent &dps) {
         dps.convertPercentage();
         double result = dps.deposit * pow(dps.m_percent, dps.step - 1);
-//    double result = dps.deposit * pow(1 + dps.m_percent / dps.step, dps.step);
+//    double resultDCA = dps.deposit * pow(1 + dps.m_percent / dps.step, dps.step);
         return result;
     }
 
@@ -92,7 +92,7 @@ namespace Strategy {
 //        double refill = dps.m_refill * pow(dps.m_percent, dps.step - 1);
 //        std::cout<<"Refill calc: " << refill <<"\n";
 
-//        return (double)(result + refill);
+//        return (double)(resultDCA + refill);
         return result;
     }
 
@@ -145,7 +145,7 @@ namespace Strategy {
 
                 auto diff_price = res.goal_price - find_down_price;
 
-                //todo: поменять допустимый диапазон [отклонение] расхождение
+                //todo: поменять допустимый диапазон [отклонение, delta] расхождение
                 if (diff_price == 0) {
                     res.goal_range[min_range] = range_price;
                 }

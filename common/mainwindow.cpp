@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include <QClipboard>
 #include <QDateTime>
+#include <QShortcut>
 #include <QMap>
 
 #include <iostream>
@@ -20,54 +21,46 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setDefaultValue();
-
     m_acs = new AvgCostStocks();
 
-    //Connect
+    setHotKey();
+
     connect(ui->spnFirstAssest, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]() {
-        emit (totalSumFirstOrder());
+        emit totalSumFirstOrder();
     });
 
     connect(ui->btnDiffPercent, &QPushButton::clicked, [this]() {
-
-        resultDiffPercent.clear();
-        double depo = ui->spnDepoDiffPerc->value();
-        double percentage = ui->spnDiffPercentInMonth->value();
-        int period = ui->spnDiffPercentDuration->value();
-
-        resultDiffPercent = Strategy::calculateDiffPercentPeriod(depo, percentage, period);
-//        resultDiffPercent = Strategy::calculateDiffPercentPeriodAddStock(depo,50,percentage,period);
-
-        ui->lblResultDiffPercent->setText(QString::number(std::prev(resultDiffPercent.end())->second, 'f', 2));
-
-        getDiffPercentDetails();
+        calculateDiffPercentage();
     });
 
     connect(ui->spnFirstPrice, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]() {
-        emit (totalSumFirstOrder());
+        emit totalSumFirstOrder();
+    });
+
+    connect(ui->spnDeposit, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]() {
+
+        std::unique_ptr<Graph>  graph = std::make_unique<Graph>();
+        graph->setType(Graph::TypeChart::PieChart);
+        graph->setTitleGraph("Stock portfolio", "Month", "Depo");
+
+        std::map<QString, int>  test_data = {{"EUR", 3}, {"BLR", 6},
+                                             {"USD", 5},  {"TRY", 12},
+                                             {"GBR", 2}, {"CNY", 7}};
+
+//        graph->buildPieChart(test_data);
     });
 
     connect(ui->btnAvgCostStock, &QPushButton::clicked, [this]() {
         m_acs->show();
     });
 
+
     connect(ui->btnDetail, &QPushButton::clicked, [this]() {
         detailDCA();
     });
 
     connect(ui->btnBackgrColor, &QPushButton::clicked, [this]() {
-        QList<QDoubleSpinBox *> spinBox = this->findChildren<QDoubleSpinBox *>();
-
-        if (isMoonTheme == true) {
-            setStyleSheet("background-color:#393C39;color: #F5F5F5;");
-        } else {
-            setStyleSheet("background-color:#E0E0E0; color: black;");
-            for (auto *items :spinBox)
-                items->setStyleSheet("background-color:white;color: black;");
-        }
-
-        (isMoonTheme == false) ? (isMoonTheme = true) : (isMoonTheme = false);
-
+        setBackgroundMainWindow();
     });
 
 
@@ -75,20 +68,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
         if (ui->spnFirstPrice->value() < ui->spnGoalPrice->value())
             ui->spnGoalPrice->setValue(ui->spnFirstPrice->value());
-
     });
 
-    connect(ui->btnCalculate, &QPushButton::clicked, [this]() {
-
-        result.assets = ui->spnFirstAssest->value();
-        result.price = ui->spnFirstPrice->value();
-        result.goal_price = ui->spnGoalPrice->value();
-
-        timer<ch::microseconds> timer;
-        timer.start();
-        calculate(result);
-        timer.stop().print();
-
+    connect(ui->btnCalculateDCA, &QPushButton::clicked, [this]() {
+        calculateDCA();
     });
 }
 
@@ -116,18 +99,23 @@ void MainWindow::detailDCA() {
 // this->setCentralWidget(tv);
 
     // Configure column titles
-    std::vector<QString> headerDCA = { "Assets", "Price", "Sum",  "%"};
+    std::vector<QString> headerDCA = { "Amount", "Price", "Sum",  " Down price , %", "Percentage from m_depo"};
     for( size_t  items = 0; items < headerDCA.size(); items++)
     model->setHorizontalHeaderItem(items, new QStandardItem(headerDCA.at(items)));
 
     // Add rows to the model
     QList<QStandardItem *> rowData;
-    for (const auto &item:result.goal_range) {
+    for (const auto &item:resultDCA.goal_range) {
         rowData.clear();
+        auto partofdepo = (item.second * item.first * 100) / m_depo;
+        auto dd =  new QStandardItem(QString("%1").arg(partofdepo));
         rowData << new QStandardItem(QString("%1").arg(item.first));
         rowData << new QStandardItem(QString("%1").arg(item.second));
         rowData << new QStandardItem(QString("%1").arg(item.second * item.first));
-        rowData << new QStandardItem(QString("%1").arg((item.second * 100 / result.price) - 100));
+        rowData << new QStandardItem(QString("%1").arg((item.second * 100 / resultDCA.price) - 100));
+        rowData << dd;
+        (partofdepo > 100) ? (dd->setForeground(QColor(Qt::red))):( dd->setForeground(QColor(Qt::green)));
+
         model->appendRow(rowData);
     }
 
@@ -207,6 +195,10 @@ void MainWindow::setDefaultValue() {
 
     ui->spnFirstPrice->setDecimals(4);
 
+    ui->spnDeposit->setRange(0,10000000);
+    ui->spnDeposit->setDecimals(4);
+
+
     ui->spnTotalAsset->setRange(0, 1600000);
     ui->spnGoalPrice->setRange(0, 1600000);
 
@@ -219,10 +211,12 @@ void MainWindow::setDefaultValue() {
     ui->spnDepoDiffPerc->setRange(0, 10000000);
 
     ui->spnDiffPercentDuration->setRange(0, 10000);
+    ui->spnDeposit->setRange(0, 100000000);
 
     ui->spnFirstAssest->setValue(10);
     ui->spnFirstPrice->setValue(100);
     ui->spnGoalPrice->setValue(90);
+    ui->spnDeposit->setValue(800);
     ui->spnRangeAsset->setReadOnly(true);
     ui->spnRangePrice->setReadOnly(true);
     ui->spnDepoDiffPerc->setValue(100); //default value 100
@@ -379,7 +373,7 @@ void MainWindow::getDiffPercentDetails() {
 
         std::unique_ptr<Common::Logger::CSVLogger> logger(new Common::Logger::CSVLogger);
 
-        std::string current_filename = "diff_percent_log.csv";
+        std::string current_filename = RESULT_DCA_FILE;
         std::string dump_dir = (getenv("HOME") != nullptr ? std::string(getenv("HOME")) : "/tmp") + std::string("/.ssm/");
         auto current_data = QDateTime::currentDateTime().toString("dd-MM-yyyy");
         auto filename_with_date = current_data.toStdString() + "_" + current_filename;
@@ -454,3 +448,76 @@ void MainWindow::getDiffPercentDetails() {
     model.setTitleWindow("Strategy Difference Percentage").setHeaderTable(headerSDF).build("/tmp/log.csv", delim);
     });
 }
+
+void MainWindow::calculateDiffPercentage() {
+
+    resultDiffPercent.clear();
+    double depo = ui->spnDepoDiffPerc->value();
+    double percentage = ui->spnDiffPercentInMonth->value();
+    int period = ui->spnDiffPercentDuration->value();
+    resultDiffPercent = Strategy::calculateDiffPercentPeriod(depo, percentage, period);
+//        resultDiffPercent = Strategy::calculateDiffPercentPeriodAddStock(m_depo,50,percentage,period);
+    ui->lblResultDiffPercent->setText(QString::number(std::prev(resultDiffPercent.end())->second, 'f', 2));
+    getDiffPercentDetails();
+}
+
+void MainWindow::calculateDCA() {
+    resultDCA.assets = ui->spnFirstAssest->value();
+    resultDCA.price = ui->spnFirstPrice->value();
+    resultDCA.goal_price = ui->spnGoalPrice->value();
+    m_depo = ui->spnDeposit->value();
+
+    timer<ch::microseconds> timer;
+    timer.start();
+    calculate(resultDCA);
+    timer.stop().print();
+}
+
+void MainWindow::setHotKey() {
+
+    QShortcut * shortcutDCAcalc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
+    connect(shortcutDCAcalc, &QShortcut::activated, this, [this](){
+        calculateDCA();
+    });
+
+    QShortcut * shortcutDCADetail = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_D), this);
+    connect(shortcutDCADetail, &QShortcut::activated, this, [this](){
+        detailDCA();
+    });
+
+
+    QShortcut * shortcutMoonBackground = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_B), this);
+    connect(shortcutMoonBackground, &QShortcut::activated, this, [this](){
+    setBackgroundMainWindow();
+    });
+
+
+    QShortcut * shortcutACSCalculate = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_A), this);
+    connect(shortcutACSCalculate, &QShortcut::activated, this, [this](){
+        m_acs->show();
+    });
+
+    QShortcut * shortcutDiffPercentage = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_X), this);
+    connect(shortcutDiffPercentage, &QShortcut::activated, this, [this](){
+        calculateDiffPercentage();
+    });
+
+}
+
+void MainWindow::setBackgroundMainWindow() {
+
+    QList<QDoubleSpinBox *> spinBox = this->findChildren<QDoubleSpinBox *>();
+
+    if (isMoonTheme == true) {
+        setStyleSheet("background-color:#393C39;color: #F5F5F5;");
+    } else {
+        setStyleSheet("background-color:#E0E0E0; color: black;");
+        for (auto *items :spinBox)
+            items->setStyleSheet("background-color:white;color: black;");
+    }
+
+    (isMoonTheme == false) ? (isMoonTheme = true) : (isMoonTheme = false);
+
+}
+
+

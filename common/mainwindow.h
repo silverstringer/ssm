@@ -9,12 +9,13 @@
 #include "grid.h"
 #include "chart.h"
 #include "csvreader.h"
-#include  "csvmodel.h"
+#include "csvmodel.h"
 
 #include <QMainWindow>
 #include <QDebug>
 
-#define MAX_ASSETS 10000000 //max value of assets on calculate
+#define MAX_ASSETS 100000000 //max value of assets on calculate
+#define RESULT_DCA_FILE "diff_percent_log.csv"
 
 namespace Ui {
 class MainWindow;
@@ -40,17 +41,21 @@ signals:
     void totalSumFirstOrder();
     void calcDone();
 protected:
-    dca result;
+    dca resultDCA;
+    double m_depo; // balance user oder m_depo
 private:
     void setDefaultValue();
     void calculate(double assets, double price, double goal_price);
     void calculate(dca &res, int max_range = MAX_ASSETS);
+    void calculateDCA();
+    void calculateDiffPercentage();
+    void setHotKey();
+    void setBackgroundMainWindow();
 private:
     bool isMoonTheme { false };
     std::map<double, double> resultDiffPercent;
     AvgCostStocks * m_acs { nullptr };
     Ui::MainWindow * ui;
-
 };
 
  template<typename T1, typename T2>
