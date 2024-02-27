@@ -9,6 +9,7 @@
 /cmake*
 Makefile
 *stash*
+.env
 
 #Library
 

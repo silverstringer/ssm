@@ -12,6 +12,11 @@
 #include <QShortcut>
 #include <QMap>
 
+#include <QFuture>
+#include <QtConcurrent/qtconcurrentrun.h>
+#include <QFutureWatcher>
+
+
 #include <iostream>
 
 
@@ -71,7 +76,25 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     connect(ui->btnCalculateDCA, &QPushButton::clicked, [this]() {
-        calculateDCA();
+
+        QFuture <void > future = QtConcurrent::run(this, &MainWindow::calculateDCA);
+        QFutureWatcher <void>  * watcher_calculate =  new QFutureWatcher <void >(this);
+        connect(watcher_calculate, &QFutureWatcher<void>::finished,this,[&](){
+            emit calcDone();
+            ui->btnCalculateDCA->setText("calculate");
+
+//        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
+//
+//        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
+//        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
+//
+//        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
+        });
+        watcher_calculate->setFuture(future);
+        ui->btnCalculateDCA->setText("calculate...");
+
+
+//        calculateDCA();
     });
 }
 
@@ -263,26 +286,7 @@ void MainWindow::calculate(dca &res, int max_range) {
     }
 
     //set GUI
-    ui->lblTotalFirstSum->setText(QString::number(res.assets * res.price));
-
-    for (const auto value:res.goal_range) {
-        auto range_assets = value.first;
-        auto range_price = value.second;
-
-        ui->spnRangeAsset->setValue(range_assets);
-        ui->spnRangePrice->setValue(range_price);
-
-        ui->spnTotalAsset->setValue(range_assets + res.assets);
-        ui->lblTotalSum->setText(QString::number(range_price * range_assets + res.assets * res.price));
-
-        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
-
-        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
-        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
-
-        ui->lblRangeSum->setText(QString::number(range_assets * range_price));
-        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
-    }
+    setGuiCalculateDca(res);
 
 //   emit calcDone();
 }
@@ -520,4 +524,26 @@ void MainWindow::setBackgroundMainWindow() {
 
 }
 
+void MainWindow::setGuiCalculateDca(dca &res) {
 
+    ui->lblTotalFirstSum->setText(QString::number(res.assets * res.price));
+
+    for (const auto value:res.goal_range) {
+        auto range_assets = value.first;
+        auto range_price = value.second;
+
+        ui->spnRangeAsset->setValue(range_assets);
+        ui->spnRangePrice->setValue(range_price);
+
+        ui->spnTotalAsset->setValue(range_assets + res.assets);
+        ui->lblTotalSum->setText(QString::number(range_price * range_assets + res.assets * res.price));
+//
+//        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
+//
+//        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
+//        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
+//
+        ui->lblRangeSum->setText(QString::number(range_assets * range_price));
+//        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
+    }
+}
