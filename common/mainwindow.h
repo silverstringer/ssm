@@ -51,6 +51,7 @@ private:
     void calculateDiffPercentage();
     void setHotKey();
     void setBackgroundMainWindow();
+    void setGuiCalculateDca(dca &res);
 private:
     bool isMoonTheme { false };
     std::map<double, double> resultDiffPercent;

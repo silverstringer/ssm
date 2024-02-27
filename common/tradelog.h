@@ -3,12 +3,15 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 #include <iostream>
 
 /**
  * @brief файл журнала сделок
+ * @future возможно отдельный модуль
  * @note  usage in future  struct from future
- *  //скорее всего выгрузка из таблицы с id trader [ или  id  можно внести в общий конфиг]
+ * @note скорее всего выгрузка из таблицы с id trader [ или  id  можно внести в общий конфиг]
+ * @note in [.csv -> grid]
  */
 
 class TradeLog final {
@@ -16,7 +19,7 @@ class TradeLog final {
 public:
     explicit TradeLog(ushort uid_trader) {};
 protected:
-    struct Config {
+    struct Record {
     string timestampOpen; //dd-mm-yy
     string timestampClose; //dd-mm-yy
     string orderType;
@@ -39,12 +42,18 @@ private:
     ushort uid_trader;
 };
 
-  //PNL, profit and loss;
 
-  class AnalyzeTradeLogSummary final   {
+   /**
+    * @brief PNL, profit and loss;
+    *
+    */
+
+  class AnalyzeTradeLogSummary final  {
        using string_view = std::string_view;
+      using TradeLogSummary = std::vector<TradeLog>;
     public:
-        explicit AnalyzeTradeLogSummary();
+        explicit AnalyzeTradeLogSummary(TradeLogSummary &log);
+        void calculate();
   protected:
       ushort total_number_winning_trades;
       ushort total_number_losing_trades;
