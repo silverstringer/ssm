@@ -75,6 +75,19 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->spnGoalPrice->setValue(ui->spnFirstPrice->value());
     });
 
+    connect(ui->btnFuturesCalc, &QPushButton::clicked, []() {
+
+        try {
+            QtConcurrent::run([]() {
+                FuturesCalculator calc;
+                calc.run(); // Выполнение задачи
+            });
+        }
+        catch(std::exception& e){
+            qDebug() <<e.what();
+        }
+    });
+
     connect(ui->btnCalculateDCA, &QPushButton::clicked, [this]() {
 
         QFuture <void > future = QtConcurrent::run(this, &MainWindow::calculateDCA);
@@ -438,12 +451,12 @@ void MainWindow::getDiffPercentDetails() {
       }
 
       std::unique_ptr<Graph>  graph = std::make_unique<Graph>();
-      graph->setType(Graph::TypeChart::BarChart);
+      graph->setType(Graph::TypeChart::LineChart);
       graph->setTitleGraph("Diff Percentage", "Month", "Depo");
 
-      graph->buildBarChart(data_convert);
+//      graph->buildBarChart(data_convert);
 //      graph->buildBarChartDiffDepo(data_convert);
-//     graph->buildLineChart(data_convert1);
+     graph->buildLineChart(data_convert1);
 
      //View csv data from file
      char delim = ';';

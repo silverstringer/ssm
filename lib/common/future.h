@@ -43,10 +43,10 @@
 
 // calculate SMA usage history data [json,  etc.] and period {example 20, 50, 100 }
 // usage price closing
-     float sma(std::vector<float> price_closing, int period = 0) {
-         if (period > price_closing.size() || period < 0)
+     float sma(std::vector<float> &price_closing, int period = 0) {
+         if (static_cast<size_t>(period) > price_closing.size() || period < 0)
              return 0L;
-         if (period != price_closing.size() && period != 0)
+         if (static_cast<size_t>(period) != price_closing.size() && period != 0)
              price_closing.resize(period);
          return (float) std::accumulate(price_closing.begin(), price_closing.end(), 0) / price_closing.size();
      }

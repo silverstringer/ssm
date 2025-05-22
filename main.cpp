@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-
     MainWindow app;
     app.show();
 
@@ -18,7 +17,6 @@ int main(int argc, char *argv[])
 
     Strategy::dca res_test(10, 100, 90);
     std::vector<std::pair<int,int>> ranges = Strategy::make_sub_range(MAX_ASSETS);
-
 
     //for thread pool
 //    ThreadPool pool(4);
@@ -34,13 +32,6 @@ int main(int argc, char *argv[])
 //    }
 //    timer.stop().print();
 
-////    c++17 struct_binding
-//    for(const auto [range_assets, range_price] : res_test.goal_range)
-//    {
-//        qDebug() <<"Range assets main" <<range_assets<<"Range price:" <<range_price;
-//    }
-
-//    qDebug() <<"Size ranges: " <<res_test.goal_range.size();
 
     auto strategy = Market::Strategy::Type::Scalping;
     auto algo = Market::TraderAlgorithmFactory::createAlgo(strategy);
@@ -51,6 +42,7 @@ int main(int argc, char *argv[])
 
     auto algo_3 = algo->clone();
     algo_3->init();
+
 
 
     return a.exec();

@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall -Wextra -Wno-unused-function)
 
-add_library(${PROJECT_NAME}  SHARED dca.cpp grid.h logger.h future.h)
+add_library(${PROJECT_NAME}  SHARED dca.cpp grid.h logger.h future.h futurescalculator.cpp)
 add_library(lib::common ALIAS common)
 
 target_include_directories( ${PROJECT_NAME}

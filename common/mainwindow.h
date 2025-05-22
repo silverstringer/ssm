@@ -10,6 +10,7 @@
 #include "chart.h"
 #include "csvreader.h"
 #include "csvmodel.h"
+#include "futurescalculator.h"
 
 #include <QMainWindow>
 #include <QDebug>
