@@ -478,6 +478,19 @@
      <string>Trade log</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="btnFuturesCalc">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>340</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FuturesCalc</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>

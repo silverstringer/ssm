@@ -16,14 +16,15 @@
 #include <ctime>
 #include <chrono>
 
+
 #define DEFAULT_DIR "/.ssm"
 
 template< typename VALUE, typename SFINAE = void >
 struct StrongTypedefValidator {};
 
 
-template<> [[maybe_unused]]
-struct StrongTypedefValidator< std::string, std::enable_if< true >::type > final
+template<>
+struct [[maybe_unused]] StrongTypedefValidator< std::string, std::enable_if< true >::type > final
 {
     bool operator ()( const std::string & value ) const noexcept
     {
@@ -32,8 +33,8 @@ struct StrongTypedefValidator< std::string, std::enable_if< true >::type > final
 };
 
 
-template<> [[maybe_unused]]
-struct StrongTypedefValidator< QString, std::enable_if< true >::type > final
+template<>
+struct [[maybe_unused]] StrongTypedefValidator< QString, std::enable_if< true >::type > final
 {
     bool operator ()( const QString & value ) const noexcept
     {
@@ -220,7 +221,7 @@ class CSVLogger final : public Logger
 
 public:
     explicit CSVLogger(string directory = (getenv("HOME") != nullptr ? std::string(getenv("HOME")) : "/tmp") + std::string(DEFAULT_DIR),
-                       string delm = ";  ", bool write = true, bool timestamp = false ) :
+                       string delm = ";", bool write = true, bool timestamp = false ) :
         path(directory), delimeter(delm), write_enabled(write), timestamp_enabled(timestamp)
     {}
 

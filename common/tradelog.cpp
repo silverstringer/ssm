@@ -1,6 +1,6 @@
 #include "tradelog.h"
 
-AnalyzeTradeLogSummary::AnalyzeTradeLogSummary(TradeLogSummary &log) {
+AnalyzeTradeLogSummary::AnalyzeTradeLogSummary( [[maybe_unused]]TradeLogSummary &log) {
 
 }
 

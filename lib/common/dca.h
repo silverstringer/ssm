@@ -47,9 +47,9 @@ namespace Strategy {
 //namespace container{}
 
     struct dca {
-        double assets{0};
+        double assets{0}; //
         double price{0};
-        double goal_price{0};
+        double goal_price{0}; //target
         std::map<double, double> goal_range;
 
         dca() = default;
@@ -64,23 +64,22 @@ namespace Strategy {
  * @note  calculate for month
  */
     struct DiffPercent {
-        DiffPercent(double depo, double percent, double counterMonth, double refill = 0.00L);
 
         double deposit;
-        double m_percent;
+        double percent;
         double step;
-        double m_refill; // add advanced asset
+        double refill; // add advanced asset
 
+        DiffPercent(double depo, double percent, double counterMonth, double refill = 0.00L);
         void convertPercentage();
-
         void clear();
     };
 
 
     double static calculateDiffPercent(DiffPercent &dps) {
         dps.convertPercentage();
-        double result = dps.deposit * pow(dps.m_percent, dps.step - 1);
-//    double resultDCA = dps.deposit * pow(1 + dps.m_percent / dps.step, dps.step);
+        double result = dps.deposit * pow(dps.percent, dps.step - 1);
+//    double resultDCA = dps.deposit * pow(1 + dps.percent / dps.step, dps.step);
         return result;
     }
 
@@ -88,8 +87,8 @@ namespace Strategy {
     //todo: перепроверить , процент с пополнением
     double static calculateDiffPercentAddStock(DiffPercent &dps) {
         dps.convertPercentage();
-        double result = (dps.deposit + dps.m_refill) * pow(dps.m_percent, dps.step - 1);
-//        double refill = dps.m_refill * pow(dps.m_percent, dps.step - 1);
+        double result = (dps.deposit + dps.refill) * pow(dps.percent, dps.step - 1);
+//        double refill = dps.refill * pow(dps.percent, dps.step - 1);
 //        std::cout<<"Refill calc: " << refill <<"\n";
 
 //        return (double)(resultDCA + refill);
@@ -99,6 +98,10 @@ namespace Strategy {
 
     std::map<double, double> static
     calculateDiffPercentPeriod(const double depo, const double percentage, const int period) {
+        if (period <= 0) {
+            std::map<double, double> empty_map;
+            return empty_map;
+        }
 
         std::map<double, double> resultDiffPercent;
 
@@ -129,6 +132,13 @@ namespace Strategy {
         return resultDiffPercent;
     }
 
+     /**
+      *
+      * @param dca res
+      * @param min_range
+      * @param max_range
+      * @note calculate only exactly result by range [slowly]
+      */
     void static calculateDCA(dca &res, int min_range = 0, int max_range = 0) {
 
         auto first_total_sum = res.assets * res.price;
