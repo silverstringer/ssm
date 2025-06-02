@@ -10,7 +10,9 @@ FuturesCalculator::FuturesCalculator() noexcept {
             {"RTSF",  InstrumentParams(1,   10,   1.0)},   // Фьючерс на индекс РТС
             {"SIH4",  InstrumentParams(1000, 0.01, 1.0)},  // Фьючерс на серебро
             {"USDRUBF",  InstrumentParams(1000, 0.01, 10)},// Фьючерс на доллар однодневный
-            {"USDRUBK",  InstrumentParams(1000, 1, 1)}     // Фьючерс на доллар  квартальный
+            {"USDRUBFK",  InstrumentParams(1000, 1, 1)},     // Фьючерс на доллар  квартальный
+            {"MTLRFK",  InstrumentParams(100, 1, 1)},     // Фьючерс на мечел  квартальный
+            {"SBRFK",  InstrumentParams(100, 1, 1)}     // Фьючерс на сбербанк квартальный
     };
 }
 

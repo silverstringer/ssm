@@ -80,7 +80,34 @@ MainWindow::MainWindow(QWidget *parent) :
         try {
             QtConcurrent::run([]() {
                 FuturesCalculator calc;
-                calc.run(); // Выполнение задачи
+                calc.run();
+            });
+        }
+        catch(std::exception& e){
+            qDebug() <<e.what();
+        }
+    });
+
+    connect(ui->btnInvestmentCalc, &QPushButton::clicked, []() {
+
+        try {
+            QtConcurrent::run([]() {
+
+                int currentLots;
+                double currentAvgPrice, targetAvgPrice, budget;
+
+                std::cout << "\n Введите текущее количество лотов: ";
+                std::cin >> currentLots;
+                std::cout << "Введите текущую среднюю цену (руб.): ";
+                std::cin >> currentAvgPrice;
+                std::cout << "Введите целевую среднюю цену (руб.): ";
+                std::cin >> targetAvgPrice;
+                std::cout << "Введите бюджет (руб., или 0 для неограниченного): ";
+                std::cin >> budget;
+                budget = (budget <= 0) ? std::numeric_limits<double>::max() : budget;
+
+                InvestmentCalculator::compareStrategies(currentLots, currentAvgPrice, targetAvgPrice, budget);
+
             });
         }
         catch(std::exception& e){
