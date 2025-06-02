@@ -76,8 +76,6 @@ void Graph::buildBarChartDiffDepo(const std::map<QString,int> &data)
     for (auto&& [key, value] : data) {
         set[i] = new QBarSet(key);
         *set[i] <<depo<<value;
-//        *set[i] <<0<<3<<4<<8<<45<<90<<123<<450 <<600<<900<<0<<0;
-//        *set[i] <<m_depo<<value<<0<<0<<0<<0<<0<<0<<0<<0<<0<<0;
         series->append(set[i]);
         i++;
     }
@@ -98,7 +96,7 @@ void Graph::buildBarChartDiffDepo(const std::map<QString,int> &data)
     series->attachAxis(axisX);
 
     QValueAxis *axisY = new QValueAxis();
-    auto param = min_max_range_element(data);
+    [[maybe_unused]]auto param = min_max_range_element(data);
 
 //    axisY->setRange(0, max->second + min->second);
 //    axisY->setTickCount(data.size() * 1.5);
@@ -117,8 +115,14 @@ void Graph::buildLineChart(const std::map<int,int> &data) {
 
     QLineSeries *series = new QLineSeries();
 
+    QVector<QPointF> points;
+
     for (auto&& [key, value] : data)
-        series->append(key,value);
+    points.append(QPointF(key, value));
+    series->replace(points);
+
+    // for (auto&& [key, value] : data)
+        // series->append(key,value);
 
     QChart *chart = new QChart();
     chart->legend()->hide();

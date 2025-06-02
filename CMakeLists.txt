@@ -10,13 +10,22 @@ message(status "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 if(MSVS)
     add_compile_options( /wd4127 /wd4250)
 else()
-add_compile_options(-Wall -Wextra -Wno-unused-function  ) #-Werror
+add_compile_options(-Wall -Wextra -Wno-unused-function) #-Werror -Wpedantic
+endif()
+
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g")
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
 endif()
 
 add_subdirectory(lib/common)
 
 #find Package
-find_package(Qt5 COMPONENTS Widgets Network Core Gui Charts REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Core Gui Multimedia Charts)
+
 find_package(Threads REQUIRED)
 
 #for QT
@@ -36,6 +45,9 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 2)
 set(VERSION_PATCH 3)
 set(SO_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+
+
+
 
 
 #Build Library
@@ -83,11 +95,9 @@ set(UIFORM common/mainwindow.ui)
 QT5_WRAP_UI(UI_HEADERS ${UIFORM} )
 
 add_executable(${PROJECT_NAME}  ${HEADER_FILES} ${SOURCE_FILES} ${UI_HEADERS})
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::Network Qt5::Core Qt5::Gui Qt5::Charts  Threads::Threads stdc++fs lib::common)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Charts  Threads::Threads stdc++fs lib::common)
 
 install (TARGETS ${PROJECT_NAME} DESTINATION bin)
-
-#SET(CPACK_PACKAGE_VERSION "1.0.2")
 
 set(CPACK_SYSTEM_NAME ${SO_VERSION})
 

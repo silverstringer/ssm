@@ -12,6 +12,11 @@
 #include <QShortcut>
 #include <QMap>
 
+#include <QFuture>
+#include <QtConcurrent/qtconcurrentrun.h>
+#include <QFutureWatcher>
+
+
 #include <iostream>
 
 
@@ -70,8 +75,66 @@ MainWindow::MainWindow(QWidget *parent) :
             ui->spnGoalPrice->setValue(ui->spnFirstPrice->value());
     });
 
+    connect(ui->btnFuturesCalc, &QPushButton::clicked, []() {
+
+        try {
+            QtConcurrent::run([]() {
+                FuturesCalculator calc;
+                calc.run();
+            });
+        }
+        catch(std::exception& e){
+            qDebug() <<e.what();
+        }
+    });
+
+    connect(ui->btnInvestmentCalc, &QPushButton::clicked, []() {
+
+        try {
+            QtConcurrent::run([]() {
+
+                int currentLots;
+                double currentAvgPrice, targetAvgPrice, budget;
+
+                std::cout << "\n Введите текущее количество лотов: ";
+                std::cin >> currentLots;
+                std::cout << "Введите текущую среднюю цену (руб.): ";
+                std::cin >> currentAvgPrice;
+                std::cout << "Введите целевую среднюю цену (руб.): ";
+                std::cin >> targetAvgPrice;
+                std::cout << "Введите бюджет (руб., или 0 для неограниченного): ";
+                std::cin >> budget;
+                budget = (budget <= 0) ? std::numeric_limits<double>::max() : budget;
+
+                InvestmentCalculator::compareStrategies(currentLots, currentAvgPrice, targetAvgPrice, budget);
+
+            });
+        }
+        catch(std::exception& e){
+            qDebug() <<e.what();
+        }
+    });
+
     connect(ui->btnCalculateDCA, &QPushButton::clicked, [this]() {
-        calculateDCA();
+
+        QFuture <void > future = QtConcurrent::run(this, &MainWindow::calculateDCA);
+        QFutureWatcher <void>  * watcher_calculate =  new QFutureWatcher <void >(this);
+        connect(watcher_calculate, &QFutureWatcher<void>::finished,this,[&](){
+            emit calcDone();
+            ui->btnCalculateDCA->setText("calculate");
+
+//        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
+//
+//        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
+//        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
+//
+//        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
+        });
+        watcher_calculate->setFuture(future);
+        ui->btnCalculateDCA->setText("calculate...");
+
+
+//        calculateDCA();
     });
 }
 
@@ -263,26 +326,7 @@ void MainWindow::calculate(dca &res, int max_range) {
     }
 
     //set GUI
-    ui->lblTotalFirstSum->setText(QString::number(res.assets * res.price));
-
-    for (const auto value:res.goal_range) {
-        auto range_assets = value.first;
-        auto range_price = value.second;
-
-        ui->spnRangeAsset->setValue(range_assets);
-        ui->spnRangePrice->setValue(range_price);
-
-        ui->spnTotalAsset->setValue(range_assets + res.assets);
-        ui->lblTotalSum->setText(QString::number(range_price * range_assets + res.assets * res.price));
-
-        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
-
-        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
-        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
-
-        ui->lblRangeSum->setText(QString::number(range_assets * range_price));
-        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
-    }
+    setGuiCalculateDca(res);
 
 //   emit calcDone();
 }
@@ -434,12 +478,12 @@ void MainWindow::getDiffPercentDetails() {
       }
 
       std::unique_ptr<Graph>  graph = std::make_unique<Graph>();
-      graph->setType(Graph::TypeChart::BarChart);
+      graph->setType(Graph::TypeChart::LineChart);
       graph->setTitleGraph("Diff Percentage", "Month", "Depo");
 
-      graph->buildBarChart(data_convert);
+//      graph->buildBarChart(data_convert);
 //      graph->buildBarChartDiffDepo(data_convert);
-//     graph->buildLineChart(data_convert1);
+     graph->buildLineChart(data_convert1);
 
      //View csv data from file
      char delim = ';';
@@ -520,4 +564,26 @@ void MainWindow::setBackgroundMainWindow() {
 
 }
 
+void MainWindow::setGuiCalculateDca(dca &res) {
 
+    ui->lblTotalFirstSum->setText(QString::number(res.assets * res.price));
+
+    for (const auto value:res.goal_range) {
+        auto range_assets = value.first;
+        auto range_price = value.second;
+
+        ui->spnRangeAsset->setValue(range_assets);
+        ui->spnRangePrice->setValue(range_price);
+
+        ui->spnTotalAsset->setValue(range_assets + res.assets);
+        ui->lblTotalSum->setText(QString::number(range_price * range_assets + res.assets * res.price));
+//
+//        ui->spnGoalPrice->setStyleSheet("QDoubleSpinBox {color : red;}");
+//
+//        ui->spnRangeAsset->setStyleSheet("QDoubleSpinBox {color : green; }");
+//        ui->spnRangePrice->setStyleSheet("QDoubleSpinBox {color : green; }");
+//
+        ui->lblRangeSum->setText(QString::number(range_assets * range_price));
+//        ui->lblRangeSum->setStyleSheet("QLabel {color : green; }");
+    }
+}

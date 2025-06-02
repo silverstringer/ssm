@@ -2,6 +2,7 @@
 /*.idea
 */.idea
 *.pro.*
+*.vscode
 
 #Build
 /build
@@ -9,6 +10,7 @@
 /cmake*
 Makefile
 *stash*
+.env
 
 #Library
 
@@ -19,3 +21,4 @@ Makefile
 
 
 
+/.vscode/
