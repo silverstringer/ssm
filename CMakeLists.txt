@@ -34,20 +34,16 @@ set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
 
 #Standart
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS -pthread)
-
 
 #Version
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 2)
 set(VERSION_PATCH 3)
 set(SO_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-
-
-
 
 
 #Build Library
@@ -63,29 +59,11 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/common/)
 
-#file( GLOB_RECURSE SOURCE_FILES *.cpp)
-#file( GLOB_RECURSE HEADER_FILES *.h)
+file( GLOB_RECURSE SOURCE_FILES common/*.cpp  Model/acsmodel.cpp main.cpp)
+file( GLOB_RECURSE HEADER_FILES  common/*.h Model/acsmodel.h)
+
 #file( GLOB_RECURSE MODEL_FILES Model/*.cpp)
 #file( GLOB_RECURSE API_FILES Model/*.h)
-
-SET( SOURCE_FILES
-        Model/acsmodel.cpp
-        common/mainwindow.cpp
-        common/avgcoststocks.cpp
-        common/chart.cpp
-        common/csvmodel.cpp
-        common/tradelog.cpp
-        main.cpp)
-SET( HEADER_FILES
-        Model/acsmodel.h
-        common/mainwindow.h
-        common/avgcoststocks.h
-        common/chart.h
-        common/threadpool.h
-        common/timer.h
-        common/csvreader.h
-        common/csvmodel.h
-        common/tradelog.h)
 
 #file(GLOB CLIENT_FILE *.cpp *.h)
 

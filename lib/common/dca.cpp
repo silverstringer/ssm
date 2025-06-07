@@ -19,9 +19,9 @@ void dca::clear()
 DiffPercent::DiffPercent(double depo, double percent, double counterMonth, double refill)
 {
     deposit = depo;
-    percent = percent;
+    m_percent = percent;
     step = counterMonth;
-    refill = refill;
+    m_refill = refill;
 }
 
 void DiffPercent::convertPercentage()
@@ -30,9 +30,9 @@ void DiffPercent::convertPercentage()
     auto getCoefficient = [&](){
     for( auto i = 1; i < 10; i++)
     {
-        if(isBoundRange(i * 100 , (i + 1) *100 , (int)percent))
+        if(isBoundRange(i * 100 , (i + 1) *100 , (int)m_percent))
         {
-            Coeff = 1 + percent / 100;
+            Coeff = 1 + m_percent / 100;
         }
     }
     };
@@ -40,12 +40,12 @@ void DiffPercent::convertPercentage()
     getCoefficient();
 
 
-   if(isBoundRange(0, 99, static_cast<int>(percent)))
-       percent = 1 + percent / 100;
-   if(percent == 100)
-       percent = 2;
+   if(isBoundRange(0, 99, static_cast<int>(m_percent)))
+       m_percent = 1 + m_percent / 100;
+   if(m_percent == 100)
+       m_percent = 2;
    if(Coeff != 0 )
-       percent= Coeff;
+       m_percent= Coeff;
 
 //   assert(percent >100 && "Error!Percent can't larger 100");
 
@@ -54,7 +54,7 @@ void DiffPercent::convertPercentage()
 void DiffPercent::clear()
 {
     deposit = 0;
-    percent = 0;
+    m_percent = 0;
     step = 0;
 }
 
