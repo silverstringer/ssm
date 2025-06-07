@@ -66,9 +66,9 @@ namespace Strategy {
     struct DiffPercent {
 
         double deposit;
-        double percent;
+        double m_percent;
         double step;
-        double refill; // add advanced asset
+        double m_refill; // add advanced asset
 
         DiffPercent(double depo, double percent, double counterMonth, double refill = 0.00L);
         void convertPercentage();
@@ -78,7 +78,7 @@ namespace Strategy {
 
     double static calculateDiffPercent(DiffPercent &dps) {
         dps.convertPercentage();
-        double result = dps.deposit * pow(dps.percent, dps.step - 1);
+        double result = dps.deposit * pow(dps.m_percent, dps.step - 1);
 //    double resultDCA = dps.deposit * pow(1 + dps.percent / dps.step, dps.step);
         return result;
     }
@@ -87,7 +87,7 @@ namespace Strategy {
     //todo: перепроверить , процент с пополнением
     double static calculateDiffPercentAddStock(DiffPercent &dps) {
         dps.convertPercentage();
-        double result = (dps.deposit + dps.refill) * pow(dps.percent, dps.step - 1);
+        double result = (dps.deposit + dps.m_refill) * pow(dps.m_percent, dps.step - 1);
 //        double refill = dps.refill * pow(dps.percent, dps.step - 1);
 //        std::cout<<"Refill calc: " << refill <<"\n";
 

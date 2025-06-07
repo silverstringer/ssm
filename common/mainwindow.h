@@ -11,7 +11,9 @@
 #include "csvreader.h"
 #include "csvmodel.h"
 #include "futurescalculator.h"
-#include "investmentcalculator .h"
+#include "investmentcalculator.h"
+
+#include "storage.h"
 
 #include <QMainWindow>
 #include <QDebug>

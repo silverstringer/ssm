@@ -1,7 +1,7 @@
 ## Service Stock Markets
 The service for calculate some parameters stock market
 ## Requirements
-<br>-C++17 compiler support
+<br>-C++20 compiler support
 <br>-Cmake
 <br>-QT
 <br>-Doxygen
@@ -12,19 +12,19 @@ git clone https://github.com/silverstringer/ssm.git
 mkdir build && cd build
 
 cmake ..
-
-make -j8
+make -j12
 
 ## Install
 make install
 
 ## Run
 
-
 ## Usage
 1) Simple  Dollar Cost Average Digital Asset( on bull market)
 2) Different percentage on month
 3) Calculate average price of asset
+4) Futures calc
+5) Invest calc
 
 *Advanced. Save resultDCA on *.csv file, build graph
 
